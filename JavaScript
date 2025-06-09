@@ -1,0 +1,747 @@
+<script>
+  // JavaScript.html
+
+  let currentTab = 1;
+  const totalTabs = 5;
+  let map;
+  let marker;
+
+  $(document).ready(function() {
+    // Show loader initially
+    $('.loader-wrapper').show();
+
+    // Initialize map after Google Maps API is loaded
+    window.initMap = function() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 13.7563, lng: 100.5018 }, // Default to Bangkok
+        zoom: 10
+      });
+
+      // Search box for map
+      const input = document.getElementById('mapSearchInput');
+      const searchBox = new google.maps.places.SearchBox(input);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+      map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+      });
+
+      searchBox.addListener('places_changed', function() {
+        const places = searchBox.getPlaces();
+
+        if (places.length == 0) {
+          return;
+        }
+
+        const bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+          if (!place.geometry || !place.geometry.location) {
+            console.log("Returned place contains no geometry");
+            return;
+          }
+
+          if (marker) {
+            marker.setMap(null);
+          }
+          marker = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location
+          });
+
+          $('#latitude').val(place.geometry.location.lat());
+          $('#longitude').val(place.geometry.location.lng());
+
+          if (place.geometry.viewport) {
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
+        });
+        map.fitBounds(bounds);
+      });
+
+      // Click listener to set marker and coordinates
+      map.addListener('click', function(e) {
+        if (marker) {
+          marker.setMap(null);
+        }
+        marker = new google.maps.Marker({
+          position: e.latLng,
+          map: map
+        });
+        $('#latitude').val(e.latLng.lat());
+        $('#longitude').val(e.latLng.lng());
+      });
+    };
+
+    // Load initial data for Dashboard and Manage Data
+    loadDashboardData();
+    loadStudentData();
+
+    // Hide loader after all initial data is loaded and rendered
+    $(window).on('load', function() {
+        $('.loader-wrapper').fadeOut('slow', function() {
+            $(this).remove();
+        });
+    });
+
+    // --- Sidebar Menu Navigation ---
+    $('.nav-menu a').on('click', function(e) {
+      e.preventDefault();
+      $('.nav-menu a').removeClass('active');
+      $(this).addClass('active');
+
+      const targetSection = $(this).attr('id').replace('menu-', '');
+      $('.section').removeClass('active');
+      $(`#${targetSection}-section`).addClass('active');
+
+      // Specific actions for each section
+      if (targetSection === 'dashboard') {
+        loadDashboardData();
+      } else if (targetSection === 'manage') {
+        loadStudentData();
+      }
+    });
+
+    // Set Dashboard as active on initial load
+    $('#menu-dashboard').addClass('active');
+    $('#dashboard-section').addClass('active');
+
+
+    // --- Form Tab Navigation ---
+    $('.tab-button').on('click', function() {
+      const tabId = $(this).data('tab');
+      showTab(tabId);
+    });
+
+    $('.next-tab').on('click', function() {
+      const currentTabContent = $(this).closest('.tab-content');
+      const currentTabIndex = parseInt(currentTabContent.attr('id').replace('tab', ''));
+
+      // Validate current tab before proceeding
+      const isValid = validateCurrentTab(currentTabIndex);
+      if (!isValid) {
+        Swal.fire('ข้อผิดพลาด!', 'กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้องในแท็บนี้', 'error');
+        return;
+      }
+
+      if (currentTabIndex < totalTabs) {
+        showTab('tab' + (currentTabIndex + 1));
+      }
+    });
+
+    $('.prev-tab').on('click', function() {
+      const currentTabContent = $(this).closest('.tab-content');
+      const currentTabIndex = parseInt(currentTabContent.attr('id').replace('tab', ''));
+      if (currentTabIndex > 1) {
+        showTab('tab' + (currentTabIndex - 1));
+      }
+    });
+
+    // Function to show a specific tab
+    function showTab(tabId) {
+      $('.tab-content').removeClass('active');
+      $('.tab-button').removeClass('active');
+      $(`#${tabId}`).addClass('active');
+      $(`.tab-button[data-tab="${tabId}"]`).addClass('active');
+      currentTab = parseInt(tabId.replace('tab', ''));
+      updateProgressBar();
+    }
+
+    // Function to update progress bar
+    function updateProgressBar() {
+      const progress = (currentTab / totalTabs) * 100;
+      $('#formProgressBar').css('width', progress + '%');
+    }
+
+    // Initial progress bar update
+    updateProgressBar();
+
+    // --- Form Validation with jQuery Validate ---
+    $('#homeVisitForm').validate({
+      rules: {
+        StudentName: "required",
+        Class: "required",
+        DOB: "required",
+        Nationality: "required",
+        Ethnicity: "required",
+        Religion: "required",
+        ParentName: "required",
+        ParentRelationship: "required",
+        ParentPhone: {
+          required: true,
+          pattern: /^[0-9]{10}$/
+        },
+        ParentOccupation: "required",
+        ParentIncome: {
+          required: true,
+          min: 0
+        },
+        FamilyMembers: {
+          required: true,
+          min: 1
+        },
+        SiblingsCount: {
+          required: true,
+          min: 0
+        },
+        ChildOrder: {
+          required: true,
+          min: 1
+        },
+        MaleSiblings: {
+          required: true,
+          min: 0
+        },
+        FemaleSiblings: {
+          required: true,
+          min: 0
+        },
+        DailyFamilyTime: {
+          required: true,
+          min: 0,
+          max: 24
+        },
+        AvgIncomePerPerson: {
+          required: true,
+          min: 0
+        },
+        AllowanceSource: "required",
+        DailyAllowance: {
+          required: true,
+          min: 0
+        },
+        DistanceToSchool: {
+          required: true,
+          min: 0
+        },
+        TravelTime: {
+          required: true,
+          min: 0
+        },
+        TravelMethod: "required",
+        HousingType: "required",
+        HousingStyle: "required",
+        HousingCondition: "required",
+        Latitude: "required",
+        Longitude: "required",
+        TeacherSummary_FamilyCondition: "required",
+        TeacherSummary_ParentsDeceased: "required",
+        TeacherSummary_ParentDeceased: "required",
+        TeacherSummary_ParentsDivorced: "required",
+        TeacherSummary_NotWithParents: "required",
+        TeacherSummary_AcademicIssue: "required",
+        TeacherSummary_HealthIssue: "required",
+        TeacherSummary_SubstanceAbuseIssue: "required",
+        TeacherSummary_ViolenceIssue: "required",
+        TeacherSummary_TravelIssue: "required",
+        TeacherSummary_SexualIssue: "required",
+        TeacherSummary_GameAddictionIssue: "required",
+        TeacherSummary_EconomicIssue: "required",
+        TeacherSummary_OtherIssue: "required",
+        TeacherSummary_UrgentHelpNeeded: "required",
+        TeacherSignature: "required"
+      },
+      messages: {
+        StudentName: "กรุณากรอกชื่อ-นามสกุลนักเรียน",
+        Class: "กรุณาเลือกชั้น",
+        DOB: "กรุณาระบุวันเดือนปีเกิด",
+        ParentPhone: {
+          pattern: "กรุณากรอกเบอร์โทรศัพท์ 10 หลัก (ตัวเลขเท่านั้น)"
+        }
+        // Add custom messages for other fields as needed
+      },
+      errorElement: "span",
+      errorClass: "error",
+      highlight: function(element, errorClass, validClass) {
+        $(element).addClass(errorClass).removeClass(validClass);
+      },
+      unhighlight: function(element, errorClass, validClass) {
+        $(element).removeClass(errorClass).addClass(validClass);
+      },
+      submitHandler: function(form) {
+        submitForm();
+      }
+    });
+
+    function validateCurrentTab(tabIndex) {
+      let isValid = true;
+      $(`#tab${tabIndex} :input[required]`).each(function() {
+        if (!$(this).valid()) {
+          isValid = false;
+          return false; // Break loop
+        }
+      });
+
+      // Special handling for checkbox/radio groups if required
+      if (tabIndex === 1) { // Tab 1: Family Status, Family Relationship
+        if ($('input[name="FamilyStatus"]:checked').length === 0) {
+          isValid = false;
+          // Optionally add an error message here, e.g., to a div near the group
+          // $('#familyStatusError').text('กรุณาเลือกสถานภาพครอบครัว').show();
+        } else {
+          // $('#familyStatusError').hide();
+        }
+        if ($('input[name="FamilyRelationship"]:checked').length === 0) {
+          isValid = false;
+          // $('#familyRelationshipError').text('กรุณาเลือกความสัมพันธ์ของสมาชิกในครอบครัว').show();
+        } else {
+          // $('#familyRelationshipError').hide();
+        }
+      } else if (tabIndex === 2) { // Tab 2: Risk Behaviors (example for multiple choice fields)
+        // You'll need to check each multi-select group if you make them required
+        // E.g., if you require at least one 'Risk_Academic' selected:
+        // if ($('input[name="Risk_Academic"]:checked').length === 0) { isValid = false; }
+      } else if (tabIndex === 3) { // Tab 3: Latitude, Longitude
+        if (!$('#latitude').val() || !$('#longitude').val()) {
+          isValid = false;
+        }
+      } else if (tabIndex === 4) { // Tab 4: Photos
+          if (!document.getElementById('studentPhoto').files.length ||
+              !document.getElementById('outsideHousePhoto').files.length ||
+              !document.getElementById('insideHousePhoto').files.length) {
+              isValid = false;
+          }
+      }
+
+      return isValid;
+    }
+
+
+    // --- Other Issue Details Toggle ---
+    $('input[name="TeacherSummary_OtherIssue"]').on('change', function() {
+      if ($(this).val() === 'ใช่') {
+        $('#otherIssueDetailsGroup').show();
+        $('#otherIssueDetails').prop('required', true);
+      } else {
+        $('#otherIssueDetailsGroup').hide();
+        $('#otherIssueDetails').prop('required', false);
+        $('#otherIssueDetails').val(''); // Clear value when hidden
+      }
+    });
+
+    // --- Image Preview Logic ---
+    $('input[type="file"]').on('change', function() {
+      const file = this.files[0];
+      const previewElementId = $(this).attr('id') + 'Preview';
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          $('#' + previewElementId).html(`<img src="${e.target.result}" alt="Image Preview">`);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        $('#' + previewElementId).empty();
+      }
+    });
+
+    // --- Get Current Location ---
+    $('#getCurrentLocation').on('click', function() {
+      Swal.fire({
+        title: 'กำลังดึงตำแหน่ง...',
+        text: 'โปรดรอสักครู่',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            $('#latitude').val(lat);
+            $('#longitude').val(lng);
+            Swal.close();
+            Swal.fire('สำเร็จ!', 'ดึงตำแหน่งปัจจุบันสำเร็จ', 'success');
+
+            // Update map
+            const newCenter = new google.maps.LatLng(lat, lng);
+            map.setCenter(newCenter);
+            if (marker) {
+              marker.setMap(null);
+            }
+            marker = new google.maps.Marker({
+              position: newCenter,
+              map: map
+            });
+            map.setZoom(16); // Zoom in when location is found
+          },
+          function(error) {
+            Swal.close();
+            let errorMessage = '';
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                errorMessage = "ผู้ใช้ปฏิเสธการเข้าถึงตำแหน่ง";
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMessage = "ข้อมูลตำแหน่งไม่พร้อมใช้งาน";
+                break;
+              case error.TIMEOUT:
+                errorMessage = "การร้องขอการเข้าถึงตำแหน่งหมดเวลา";
+                break;
+              case error.UNKNOWN_ERROR:
+                errorMessage = "เกิดข้อผิดพลาดที่ไม่รู้จัก";
+                break;
+            }
+            Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถดึงตำแหน่งได้: ' + errorMessage, 'error');
+          }
+        );
+      } else {
+        Swal.close();
+        Swal.fire('ข้อผิดพลาด!', 'เบราว์เซอร์ของคุณไม่รองรับ Geolocation', 'error');
+      }
+    });
+
+    // --- Form Submission ---
+    async function submitForm() {
+      Swal.fire({
+        title: 'กำลังบันทึกข้อมูล...',
+        text: 'โปรดรอสักครู่',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      const formData = {};
+      $('#homeVisitForm').serializeArray().forEach(item => {
+        // Handle multiple selections (checkboxes)
+        if (formData[item.name]) {
+          if (!Array.isArray(formData[item.name])) {
+            formData[item.name] = [formData[item.name]];
+          }
+          formData[item.name].push(item.value);
+        } else {
+          formData[item.name] = item.value;
+        }
+      });
+
+      // Handle radio buttons that are not checked (to ensure all fields are sent)
+      $('input[type="radio"]:not(:checked)').each(function() {
+          if (!formData[$(this).attr('name')]) {
+              formData[$(this).attr('name')] = ''; // Set to empty if not checked
+          }
+      });
+
+      // Handle file uploads
+      const photoUploads = [
+        { id: 'studentPhoto', name: 'StudentPhotoURL', folderId: '1AO9qWcMnJcPDsJatnX3Ck2LExRuHZ07J' },
+        { id: 'outsideHousePhoto', name: 'OutsideHousePhotoURL', folderId: '1l6lgcaf7EvB7RIZo4kyobTA9FbC1q22h' },
+        { id: 'insideHousePhoto', name: 'InsideHousePhotoURL', folderId: '1brU2oMJzFAkJhnZ1nOY7AF5xURNuVjG6' }
+      ];
+
+      try {
+        for (const photo of photoUploads) {
+          const fileInput = document.getElementById(photo.id);
+          if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            await new Promise((resolve, reject) => {
+              reader.onload = function(e) {
+                google.script.run
+                  .withSuccessHandler(url => {
+                    formData[photo.name] = url;
+                    resolve();
+                  })
+                  .withFailureHandler(error => {
+                    reject(new Error(`Failed to upload ${photo.name}: ${error}`));
+                  })
+                  .uploadImageToDrive(e.target.result, file.name, photo.folderId);
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+        }
+
+        // Send data to Google App Script
+        google.script.run
+          .withSuccessHandler(function(response) {
+            Swal.close();
+            if (response.success) {
+              Swal.fire('สำเร็จ!', response.message, 'success');
+              $('#homeVisitForm')[0].reset(); // Clear form
+              $('.image-preview').empty(); // Clear image previews
+              showTab('tab1'); // Go back to first tab
+              loadDashboardData(); // Update dashboard
+              loadStudentData(); // Update manage data
+            } else {
+              Swal.fire('ข้อผิดพลาด!', response.message, 'error');
+            }
+          })
+          .withFailureHandler(function(error) {
+            Swal.close();
+            Swal.fire('ข้อผิดพลาด!', 'เกิดข้อผิดพลาดในการส่งข้อมูล: ' + error.message, 'error');
+          })
+          .saveHomeVisitData(formData);
+
+      } catch (e) {
+        Swal.close();
+        Swal.fire('ข้อผิดพลาด!', e.message, 'error');
+      }
+    }
+
+
+    // --- Load Dashboard Data ---
+    function loadDashboardData() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.success) {
+            const data = response.data;
+            $('#totalStudents').text(data.totalStudents);
+            $('#visitedStudents').text(data.visitedStudents);
+            $('#visitPercentage').text(data.visitPercentage);
+            $('#overallProgressBar').css('width', data.visitPercentage + '%');
+
+            let classHtml = '';
+            for (const className in data.classVisitSummary) {
+              const summary = data.classVisitSummary[className];
+              classHtml += `
+                <div class="class-summary-item">
+                  <h4>${className}</h4>
+                  <p>นักเรียนทั้งหมด: ${summary.total} คน</p>
+                  <p>เยี่ยมบ้านแล้ว: ${summary.visited} คน</p>
+                  <p>ความก้าวหน้า: ${summary.percentage}%</p>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${summary.percentage}%"></div>
+                  </div>
+                </div>
+              `;
+            }
+            $('#classProgressSummary').html(classHtml);
+
+            let riskHtml = '';
+            for (const riskType in data.riskSummary) {
+                // Friendly names for risk types
+                let friendlyName = riskType.replace('TeacherSummary_', '').replace(/([A-Z])/g, ' $1').trim();
+                // Map to Thai names or more readable English
+                const thaiRiskNames = {
+                    'FamilyCondition': 'สภาพครอบครัว',
+                    'ParentsDeceased': 'บิดามารดาเสียชีวิต',
+                    'ParentDeceased': 'บิดาหรือมารดาเสียชีวิต',
+                    'ParentsDivorced': 'บิดามารดาหย่าร้าง',
+                    'NotWithParents': 'ไม่ได้อยู่กับบิดามารดา',
+                    'AcademicIssue': 'ปัญหาด้านการเรียน',
+                    'HealthIssue': 'ปัญหาด้านสุขภาพ',
+                    'SubstanceAbuseIssue': 'ปัญหาด้านสารเสพติด',
+                    'ViolenceIssue': 'ปัญหาด้านความรุนแรง',
+                    'TravelIssue': 'ปัญหาด้านการเดินทาง',
+                    'SexualIssue': 'ปัญหาด้านเพศ',
+                    'GameAddictionIssue': 'ปัญหาด้านติดเกม',
+                    'EconomicIssue': 'ปัญหาด้านเศรษฐกิจ',
+                    'OtherIssue': 'ปัญหาด้านอื่นๆ',
+                    'UrgentHelpNeeded': 'ต้องการความช่วยเหลือเร่งด่วน'
+                };
+                friendlyName = thaiRiskNames[riskType.replace('TeacherSummary_', '')] || friendlyName;
+
+
+              const summary = data.riskSummary[riskType];
+              riskHtml += `
+                <div class="risk-summary-item">
+                  <h4>${friendlyName}</h4>
+                  <p>จำนวน: ${summary.count} คน</p>
+                  <p>เปอร์เซ็นต์: ${summary.percentage}%</p>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${summary.percentage}%"></div>
+                  </div>
+                </div>
+              `;
+            }
+            $('#riskSummary').html(riskHtml);
+
+          } else {
+            Swal.fire('ข้อผิดพลาด!', response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถดึงข้อมูล Dashboard ได้: ' + error.message, 'error');
+        })
+        .getDashboardSummary();
+    }
+
+    // --- Load Student Data for Manage Section ---
+    let allStudentData = []; // Store all data for filtering
+    function loadStudentData() {
+      Swal.fire({
+        title: 'กำลังโหลดข้อมูลนักเรียน...',
+        text: 'โปรดรอสักครู่',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          Swal.close();
+          if (response.success) {
+            allStudentData = response.data;
+            renderStudentTable(allStudentData);
+          } else {
+            Swal.fire('ข้อผิดพลาด!', response.message, 'error');
+          }
+        })
+        .withFailureHandler(function(error) {
+          Swal.close();
+          Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดข้อมูลนักเรียนได้: ' + error.message, 'error');
+        })
+        .getAllStudentData();
+    }
+
+    function renderStudentTable(data) {
+      const tableBody = $('#studentDataTable tbody');
+      tableBody.empty();
+      if (data.length === 0) {
+        tableBody.append('<tr><td colspan="4">ไม่พบข้อมูลนักเรียน</td></tr>');
+        return;
+      }
+
+      data.forEach(student => {
+        const row = `
+          <tr>
+            <td>${student.StudentName}</td>
+            <td>${student.Class}</td>
+            <td>${student.Timestamp ? 'เยี่ยมบ้านแล้ว' : 'ยังไม่เยี่ยมบ้าน'}</td>
+            <td class="action-buttons">
+              <button class="edit-btn" data-name="${student.StudentName}" data-class="${student.Class}"><i class="fas fa-edit"></i> แก้ไข</button>
+              <button class="delete-btn" data-name="${student.StudentName}" data-class="${student.Class}"><i class="fas fa-trash-alt"></i> ลบ</button>
+              <button class="export-pdf-btn" data-name="${student.StudentName}" data-class="${student.Class}"><i class="fas fa-file-pdf"></i> PDF</button>
+            </td>
+          </tr>
+        `;
+        tableBody.append(row);
+      });
+    }
+
+    // --- Search Student Data ---
+    $('#searchStudentBtn').on('click', function() {
+      const searchName = $('#studentSearchName').val().toLowerCase();
+      const searchClass = $('#studentSearchClass').val();
+
+      const filteredData = allStudentData.filter(student => {
+        const matchesName = searchName === '' || student.StudentName.toLowerCase().includes(searchName);
+        const matchesClass = searchClass === '' || student.Class === searchClass;
+        return matchesName && matchesClass;
+      });
+      renderStudentTable(filteredData);
+    });
+
+    // --- Delete Student Data ---
+    $('#studentDataTable').on('click', '.delete-btn', function() {
+      const studentName = $(this).data('name');
+      const studentClass = $(this).data('class');
+
+      Swal.fire({
+        title: 'ยืนยันการลบ?',
+        text: `คุณต้องการลบข้อมูลของ ${studentName} ชั้น ${studentClass} ใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'ใช่, ลบเลย!',
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: 'กำลังลบข้อมูล...',
+            text: 'โปรดรอสักครู่',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+          google.script.run
+            .withSuccessHandler(function(response) {
+              Swal.close();
+              if (response.success) {
+                Swal.fire('ลบสำเร็จ!', response.message, 'success');
+                loadStudentData(); // Reload table
+                loadDashboardData(); // Update dashboard
+              } else {
+                Swal.fire('ข้อผิดพลาด!', response.message, 'error');
+              }
+            })
+            .withFailureHandler(function(error) {
+              Swal.close();
+              Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถลบข้อมูลได้: ' + error.message, 'error');
+            })
+            .deleteStudentData(studentName, studentClass);
+        }
+      });
+    });
+
+    // --- Edit Student Data (Placeholder - requires more complex logic) ---
+    $('#studentDataTable').on('click', '.edit-btn', function() {
+      const studentName = $(this).data('name');
+      const studentClass = $(this).data('class');
+
+      // In a real application, you'd fetch the specific student's data
+      // from the backend and pre-fill the form fields in the "บันทึกข้อมูลเยี่ยมบ้าน" section.
+      // For simplicity here, we'll just show an alert.
+
+      Swal.fire({
+        title: 'แก้ไขข้อมูล',
+        text: `ฟังก์ชันแก้ไขข้อมูลสำหรับ ${studentName} ชั้น ${studentClass} จะถูกเพิ่มเข้ามาในอนาคต.`,
+        icon: 'info',
+        confirmButtonText: 'ตกลง'
+      });
+
+      // To implement edit:
+      // 1. Fetch the specific student's data using google.script.run
+      // 2. Populate the 'record-section' form with this data.
+      // 3. Change the form's submit action to an 'update' function instead of 'save'.
+      // 4. Handle file inputs carefully (either re-upload or keep existing URLs).
+      // 5. Switch to the 'record-section' tab and activate tab1.
+    });
+
+
+    // --- Export PDF ---
+    $('#studentDataTable').on('click', '.export-pdf-btn', function() {
+        const studentName = $(this).data('name');
+        const studentClass = $(this).data('class');
+
+        // Find the full student data from the loaded allStudentData array
+        const studentToExport = allStudentData.find(s => s.StudentName === studentName && s.Class === studentClass);
+
+        if (!studentToExport) {
+            Swal.fire('ข้อผิดพลาด!', 'ไม่พบข้อมูลนักเรียนนี้สำหรับการส่งออก PDF', 'error');
+            return;
+        }
+
+        Swal.fire({
+            title: 'กำลังสร้าง PDF...',
+            text: 'โปรดรอสักครู่ อาจใช้เวลาสักครู่',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        google.script.run
+            .withSuccessHandler(function(pdfUrl) {
+                Swal.close();
+                if (pdfUrl) {
+                    Swal.fire({
+                        title: 'สร้าง PDF สำเร็จ!',
+                        text: 'คุณสามารถดาวน์โหลดไฟล์ PDF ได้จากลิงก์ด้านล่าง',
+                        icon: 'success',
+                        confirmButtonText: 'เปิด PDF',
+                        showCancelButton: true,
+                        cancelButtonText: 'ปิด',
+                        preConfirm: () => {
+                            window.open(pdfUrl, '_blank');
+                        }
+                    });
+                } else {
+                    Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถสร้างไฟล์ PDF ได้', 'error');
+                }
+            })
+            .withFailureHandler(function(error) {
+                Swal.close();
+                Swal.fire('ข้อผิดพลาด!', 'เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message, 'error');
+            })
+            .generatePdfFromTemplate(studentToExport); // Pass the full student object
+    });
+
+  }); // End of document.ready
+</script>
