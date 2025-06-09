@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <title>ระบบบันทึกการเยี่ยมบ้านนักเรียน</title>
+  <?!= include('Stylesheet'); ?>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <div class="loader-wrapper">
+    <div class="loader"></div>
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <img src="https://img2.pic.in.th/pic/Logo-big-50.png" alt="Logo" class="logo">
+        <h3>ระบบบันทึกการเยี่ยมบ้านนักเรียน</h3>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#" id="menu-dashboard"><i class="fas fa-chart-line"></i> แดชบอร์ด</a></li>
+        <li><a href="#" id="menu-record"><i class="fas fa-edit"></i> บันทึกข้อมูลเยี่ยมบ้าน</a></li>
+        <li><a href="#" id="menu-manage"><i class="fas fa-tasks"></i> จัดการข้อมูลนักเรียน</a></li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <h1>ระบบบันทึกการเยี่ยมบ้านนักเรียนรายบุคคล ประจำปีการศึกษา 2568</h1>
+      </div>
+
+      <div id="dashboard-section" class="section active">
+        <h2><i class="fas fa-chart-line"></i> แดชบอร์ด</h2>
+        <hr>
+        <div class="dashboard-summary">
+          <div class="summary-box">
+            <h3>ภาพรวมการเยี่ยมบ้าน</h3>
+            <p>นักเรียนทั้งหมด: <span id="totalStudents"></span> คน</p>
+            <p>เยี่ยมบ้านแล้ว: <span id="visitedStudents"></span> คน</p>
+            <p>ความก้าวหน้า: <span id="visitPercentage"></span>%</p>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="overallProgressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>ความก้าวหน้าแต่ละชั้น</h3>
+        <div id="classProgressSummary" class="class-summary-grid">
+          </div>
+
+        <h3>นักเรียนที่มีความเสี่ยง</h3>
+        <div id="riskSummary" class="risk-summary-grid">
+          </div>
+      </div>
+
+      <div id="record-section" class="section">
+        <h2><i class="fas fa-edit"></i> บันทึกข้อมูลเยี่ยมบ้านเป็นรายบุคคล</h2>
+        <hr>
+        <div class="progress-indicator">
+          <div class="progress-bar-fill" id="formProgressBar"></div>
+        </div>
+        <form id="homeVisitForm">
+          <div class="tabs">
+            <button type="button" class="tab-button active" data-tab="tab1"><i class="fas fa-info-circle"></i> ข้อมูลทั่วไป</button>
+            <button type="button" class="tab-button" data-tab="tab2"><i class="fas fa-exclamation-triangle"></i> พฤติกรรมความเสี่ยง</button>
+            <button type="button" class="tab-button" data-tab="tab3"><i class="fas fa-map-marker-alt"></i> ข้อมูลที่ตั้ง</button>
+            <button type="button" class="tab-button" data-tab="tab4"><i class="fas fa-camera"></i> ภาพถ่าย</button>
+            <button type="button" class="tab-button" data-tab="tab5"><i class="fas fa-user-tie"></i> สรุปข้อมูลโดยครู</button>
+          </div>
+
+          <div id="tab1" class="tab-content active">
+            <h3>ส่วนที่ 1 ข้อมูลนักเรียน</h3>
+            <div class="form-group">
+              <label for="studentName">ชื่อ - นามสกุลนักเรียน</label>
+              <input type="text" id="studentName" name="StudentName" required>
+            </div>
+            <div class="form-group">
+              <label for="nickname">ชื่อเล่น</label>
+              <input type="text" id="nickname" name="Nickname">
+            </div>
+            <div class="form-group">
+              <label for="class">ชั้น</label>
+              <select id="class" name="Class" required>
+                <option value="">เลือกชั้น</option>
+                <option value="ประถมศึกษาปีที่ 1/1">ประถมศึกษาปีที่ 1/1</option>
+                <option value="ประถมศึกษาปีที่ 1/2">ประถมศึกษาปีที่ 1/2</option>
+                <option value="ประถมศึกษาปีที่ 2/1">ประถมศึกษาปีที่ 2/1</option>
+                <option value="ประถมศึกษาปีที่ 2/2">ประถมศึกษาปีที่ 2/2</option>
+                <option value="ประถมศึกษาปีที่ 3/1">ประถมศึกษาปีที่ 3/1</option>
+                <option value="ประถมศึกษาปีที่ 3/2">ประถมศึกษาปีที่ 3/2</option>
+                <option value="ประถมศึกษาปีที่ 4/1">ประถมศึกษาปีที่ 4/1</option>
+                <option value="ประถมศึกษาปีที่ 4/2">ประถมศึกษาปีที่ 4/2</option>
+                <option value="ประถมศึกษาปีที่ 5/1">ประถมศึกษาปีที่ 5/1</option>
+                <option value="ประถมศึกษาปีที่ 5/2">ประถมศึกษาปีที่ 5/2</option>
+                <option value="ประถมศึกษาปีที่ 6/1">ประถมศึกษาปีที่ 6/1</option>
+                <option value="ประถมศึกษาปีที่ 6/2">ประถมศึกษาปีที่ 6/2</option>
+                <option value="มัธยมศึกษาปีที่ 1/1">มัธยมศึกษาปีที่ 1/1</option>
+                <option value="มัธยมศึกษาปีที่ 1/2">มัธยมศึกษาปีที่ 1/2</option>
+                <option value="มัธยมศึกษาปีที่ 2/1">มัธยมศึกษาปีที่ 2/1</option>
+                <option value="มัธยมศึกษาปีที่ 2/2">มัธยมศึกษาปีที่ 2/2</option>
+                <option value="มัธยมศึกษาปีที่ 3/1">มัธยมศึกษาปีที่ 3/1</option>
+                <option value="มัธยมศึกษาปีที่ 3/2">มัธยมศึกษาปีที่ 3/2</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dob">วันเดือนปี เกิด</label>
+              <input type="date" id="dob" name="DOB" required>
+            </div>
+            <div class="form-group">
+              <label for="nationality">สัญชาติ</label>
+              <input type="text" id="nationality" name="Nationality" value="ไทย" required>
+            </div>
+            <div class="form-group">
+              <label for="ethnicity">เชื้อชาติ</label>
+              <input type="text" id="ethnicity" name="Ethnicity" value="ไทย" required>
+            </div>
+            <div class="form-group">
+              <label for="religion">ศาสนา</label>
+              <input type="text" id="religion" name="Religion" value="พุทธ" required>
+            </div>
+
+            <h3>ส่วนที่ 2 ข้อมูลผู้ปกครอง</h3>
+            <div class="form-group">
+              <label for="parentName">ชื่อผู้ปกครอง</label>
+              <input type="text" id="parentName" name="ParentName" required>
+            </div>
+            <div class="form-group">
+              <label for="parentRelationship">ความสัมพันธ์กับนักเรียน</label>
+              <input type="text" id="parentRelationship" name="ParentRelationship" required>
+            </div>
+            <div class="form-group">
+              <label for="parentPhone">เบอร์โทรศัพท์</label>
+              <input type="tel" id="parentPhone" name="ParentPhone" pattern="[0-9]{10}" placeholder="08XXXXXXXX" required>
+            </div>
+            <div class="form-group">
+              <label for="parentOccupation">อาชีพ</label>
+              <input type="text" id="parentOccupation" name="ParentOccupation" required>
+            </div>
+            <div class="form-group">
+              <label for="parentIncome">รายได้ (บาท)</label>
+              <input type="number" id="parentIncome" name="ParentIncome" required min="0">
+            </div>
+
+            <h3>ส่วนที่ 3 ข้อมูลครอบครัว</h3>
+            <div class="form-group">
+              <label for="familyMembers">สมาชิกในครอบครัว (รวมนักเรียน)</label>
+              <input type="number" id="familyMembers" name="FamilyMembers" required min="1">
+            </div>
+            <div class="form-group">
+              <label for="siblingsCount">จำนวนพี่น้องร่วมสายเลือดทั้งหมด</label>
+              <input type="number" id="siblingsCount" name="SiblingsCount" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="childOrder">เป็นบุตรคนที่</label>
+              <input type="number" id="childOrder" name="ChildOrder" required min="1">
+            </div>
+            <div class="form-group">
+              <label for="maleSiblings">เป็นชาย (คน)</label>
+              <input type="number" id="maleSiblings" name="MaleSiblings" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="femaleSiblings">เป็นหญิง (คน)</label>
+              <input type="number" id="femaleSiblings" name="FemaleSiblings" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="dailyFamilyTime">ใช้เวลาอยู่ร่วมกันโดยเฉลี่ยกี่ชั่วโมงต่อวัน</label>
+              <input type="number" id="dailyFamilyTime" name="DailyFamilyTime" required min="0" max="24">
+            </div>
+            <div class="form-group">
+              <label>สถานภาพของครอบครัว (เลือกได้มากกว่า 1)</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="familyStatus1" name="FamilyStatus" value="บิดาและมารดาอยู่ร่วมกัน">
+                <label for="familyStatus1">บิดาและมารดาอยู่ร่วมกัน</label><br>
+                <input type="checkbox" id="familyStatus2" name="FamilyStatus" value="บิดาและมารดาเสียชีวิต">
+                <label for="familyStatus2">บิดาและมารดาเสียชีวิต</label><br>
+                <input type="checkbox" id="familyStatus3" name="FamilyStatus" value="บิดาหรือมารดาเสียชีวิต">
+                <label for="familyStatus3">บิดาหรือมารดาเสียชีวิต</label><br>
+                <input type="checkbox" id="familyStatus4" name="FamilyStatus" value="บิดาและมารดาหย่าร้างกัน">
+                <label for="familyStatus4">บิดาและมารดาหย่าร้างกัน</label><br>
+                <input type="checkbox" id="familyStatus5" name="FamilyStatus" value="อาศัยอยู่กับผู้ปกครองที่มิใช่บิดาหรือมารดาของตนเอง">
+                <label for="familyStatus5">อาศัยอยู่กับผู้ปกครองที่มิใช่บิดาหรือมารดาของตนเอง</label><br>
+                <input type="checkbox" id="familyStatus6" name="FamilyStatus" value="บิดาหรือมารดาแต่งงานใหม่">
+                <label for="familyStatus6">บิดาหรือมารดาแต่งงานใหม่</label><br>
+                <input type="checkbox" id="familyStatus7" name="FamilyStatus" value="บิดาหรือมารดาทอดทิ้ง">
+                <label for="familyStatus7">บิดาหรือมารดาทอดทิ้ง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ความสัมพันธ์ของสมาชิกในครอบครัว (เลือกได้มากกว่า 1)</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="familyRel1" name="FamilyRelationship" value="รักใคร่กันดี">
+                <label for="familyRel1">รักใคร่กันดี</label><br>
+                <input type="checkbox" id="familyRel2" name="FamilyRelationship" value="ทะเลาะกันบ้าง">
+                <label for="familyRel2">ทะเลาะกันบ้าง</label><br>
+                <input type="checkbox" id="familyRel3" name="FamilyRelationship" value="ทะเลาะกันบ่อยครั้ง">
+                <label for="familyRel3">ทะเลาะกันบ่อยครั้ง</label><br>
+                <input type="checkbox" id="familyRel4" name="FamilyRelationship" value="ทำร้ายร่างกายบางครั้ง">
+                <label for="familyRel4">ทำร้ายร่างกายบางครั้ง</label><br>
+                <input type="checkbox" id="familyRel5" name="FamilyRelationship" value="ทำร้ายร่างกายบ่อยครั้ง">
+                <label for="familyRel5">ทำร้ายร่างกายบ่อยครั้ง</label>
+              </div>
+            </div>
+
+            <h3>ส่วนที่ 4 ด้านเศรษฐกิจครอบครัว</h3>
+            <div class="form-group">
+              <label for="avgIncomePerPerson">รายได้เฉลี่ยต่อคน (บาท)</label>
+              <input type="number" id="avgIncomePerPerson" name="AvgIncomePerPerson" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="allowanceSource">นักเรียนได้รับเงินมาโรงเรียนจาก</label>
+              <input type="text" id="allowanceSource" name="AllowanceSource" required>
+            </div>
+            <div class="form-group">
+              <label for="dailyAllowance">ได้เงินมาโรงเรียนวันละ (บาท)</label>
+              <input type="number" id="dailyAllowance" name="DailyAllowance" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="extraIncomeJob">นักเรียนมีรายได้พิเศษจากอาชีพ</label>
+              <input type="text" id="extraIncomeJob" name="ExtraIncomeJob">
+            </div>
+            <div class="form-group">
+              <label for="extraIncomeDaily">รายได้โดยเฉลี่ยวันละ (บาท)</label>
+              <input type="number" id="extraIncomeDaily" name="ExtraIncomeDaily" min="0">
+            </div>
+
+            <h3>ส่วนที่ 5 สวัสดิการและความปลอดภัย</h3>
+            <div class="form-group">
+              <label for="distanceToSchool">ระยะทางระหว่างบ้านไปโรงเรียน (กิโลเมตร)</label>
+              <input type="number" step="0.1" id="distanceToSchool" name="DistanceToSchool" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="travelTime">ใช้เวลาเดินทาง (นาที)</label>
+              <input type="number" id="travelTime" name="TravelTime" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="travelMethod">เดินทางอย่างไร</label>
+              <input type="text" id="travelMethod" name="TravelMethod" required>
+            </div>
+            <div class="form-group">
+              <label for="caregiverAbsence">กรณีผู้ปกครองไม่อยู่บ้าน ฝากนักเรียนอยู่บ้านกับใคร</label>
+              <input type="text" id="caregiverAbsence" name="CaregiverAbsence">
+            </div>
+
+            <h3>ส่วนที่ 6 ที่อยู่อาศัย</h3>
+            <div class="form-group">
+              <label for="housingType">บ้านที่อาศัย</label>
+              <select id="housingType" name="HousingType" required>
+                <option value="">เลือกประเภทบ้าน</option>
+                <option value="บ้านตนเอง">บ้านตนเอง</option>
+                <option value="บ้านเช่า">บ้านเช่า</option>
+                <option value="บ้านญาติ">บ้านญาติ</option>
+                <option value="บ้านนายจ้าง">บ้านนายจ้าง</option>
+                <option value="หอพัก">หอพัก</option>
+                <option value="มูลนิธิ">มูลนิธิ</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="housingStyle">ลักษณะที่อยู่อาศัย</label>
+              <select id="housingStyle" name="HousingStyle" required>
+                <option value="">เลือกลักษณะที่อยู่อาศัย</option>
+                <option value="ตึก 2 หรือ 1 ชั้น">ตึก 2 หรือ 1 ชั้น</option>
+                <option value="ครึ่งตึกครึ่งไม้">ครึ่งตึกครึ่งไม้</option>
+                <option value="วัสดุธรรมชาติ">วัสดุธรรมชาติ</option>
+                <option value="ห้องแถว">ห้องแถว</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="housingCondition">สภาพที่อยู่อาศัย</label>
+              <select id="housingCondition" name="HousingCondition" required>
+                <option value="">เลือกสภาพที่อยู่อาศัย</option>
+                <option value="ดี">ดี</option>
+                <option value="พอใช้">พอใช้</option>
+                <option value="เก่าชำรุด/ทรุดโทรม">เก่าชำรุด/ทรุดโทรม</option>
+                <option value="คับแคบ/แออัด">คับแคบ/แออัด</option>
+                <option value="สกปรกไม่เป็นระเบียบ">สกปรกไม่เป็นระเบียบ</option>
+              </select>
+            </div>
+            <button type="button" class="next-tab" data-next-tab="tab2">ถัดไป</button>
+          </div>
+
+          <div id="tab2" class="tab-content">
+            <h3>ส่วนที่ 7 ด้านพฤติกรรมความเสี่ยง (เลือกได้มากกว่า 1 ข้อ)</h3>
+            <div class="form-group">
+              <label>ด้านการเรียน</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskAcademic1" name="Risk_Academic" value="อ่านไม่ออกเขียนไม่ได้">
+                <label for="riskAcademic1">อ่านไม่ออกเขียนไม่ได้</label><br>
+                <input type="checkbox" id="riskAcademic2" name="Risk_Academic" value="อ่านไม่คล่องเขียนไม่คล่อง">
+                <label for="riskAcademic2">อ่านไม่คล่องเขียนไม่คล่อง</label><br>
+                <input type="checkbox" id="riskAcademic3" name="Risk_Academic" value="อ่านคล่องเขียนคล่อง">
+                <label for="riskAcademic3">อ่านคล่องเขียนคล่อง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านสุขภาพ</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskHealth1" name="Risk_Health" value="ร่างกายไม่แข็งแรง">
+                <label for="riskHealth1">ร่างกายไม่แข็งแรง</label><br>
+                <input type="checkbox" id="riskHealth2" name="Risk_Health" value="มีโรคประจำตัวหรือเจ็บป่วยบ่อย">
+                <label for="riskHealth2">มีโรคประจำตัวหรือเจ็บป่วยบ่อย</label><br>
+                <input type="checkbox" id="riskHealth3" name="Risk_Health" value="มีภาวะทุพโภชนาการ">
+                <label for="riskHealth3">มีภาวะทุพโภชนาการ</label><br>
+                <input type="checkbox" id="riskHealth4" name="Risk_Health" value="ป่วยเป็นโรคร้ายแรง/เรื้อรัง">
+                <label for="riskHealth4">ป่วยเป็นโรคร้ายแรง/เรื้อรัง</label><br>
+                <input type="checkbox" id="riskHealth5" name="Risk_Health" value="สมรรถภาพทางร่างกายต่ำ">
+                <label for="riskHealth5">สมรรถภาพทางร่างกายต่ำ</label><br>
+                <input type="checkbox" id="riskHealth6" name="Risk_Health" value="ไม่มีความเสี่ยง">
+                <label for="riskHealth6">ไม่มีความเสี่ยง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านสารเสพติด</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskSubstance1" name="Risk_SubstanceAbuse" value="คบเพื่อนในกลุ่มใช้ยาเสพติด">
+                <label for="riskSubstance1">คบเพื่อนในกลุ่มใช้ยาเสพติด</label><br>
+                <input type="checkbox" id="riskSubstance2" name="Risk_SubstanceAbuse" value="คนในครอบครัวเกี่ยวข้องกับสารเสพติด">
+                <label for="riskSubstance2">คนในครอบครัวเกี่ยวข้องกับสารเสพติด</label><br>
+                <input type="checkbox" id="riskSubstance3" name="Risk_SubstanceAbuse" value="อยู่ในสภาพแวดล้อมที่ใช้สารเสพติด">
+                <label for="riskSubstance3">อยู่ในสภาพแวดล้อมที่ใช้สารเสพติด</label><br>
+                <input type="checkbox" id="riskSubstance4" name="Risk_SubstanceAbuse" value="เกี่ยวข้องกับสารเสพติด">
+                <label for="riskSubstance4">เกี่ยวข้องกับสารเสพติด</label><br>
+                <input type="checkbox" id="riskSubstance5" name="Risk_SubstanceAbuse" value="ไม่มีความเสี่ยง">
+                <label for="riskSubstance5">ไม่มีความเสี่ยง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านความรุนแรง</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskViolence1" name="Risk_Violence" value="มีการทะเลาะวิวาทบ่อยครั้ง">
+                <label for="riskViolence1">มีการทะเลาะวิวาทบ่อยครั้ง</label><br>
+                <input type="checkbox" id="riskViolence2" name="Risk_Violence" value="ก้าวร้าว เกเร">
+                <label for="riskViolence2">ก้าวร้าว เกเร</label><br>
+                <input type="checkbox" id="riskViolence3" name="Risk_Violence" value="ชอบทำร้ายร่างกายผู้อื่น">
+                <label for="riskViolence3">ชอบทำร้ายร่างกายผู้อื่น</label><br>
+                <input type="checkbox" id="riskViolence4" name="Risk_Violence" value="ทำร้ายร่างกายตนเอง">
+                <label for="riskViolence4">ทำร้ายร่างกายตนเอง</label><br>
+                <input type="checkbox" id="riskViolence5" name="Risk_Violence" value="ไม่มีความเสี่ยง">
+                <label for="riskViolence5">ไม่มีความเสี่ยง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านทางเพศ</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskSexual1" name="Risk_Sexual" value="อยู่ในกลุ่มขายบริการ">
+                <label for="riskSexual1">อยู่ในกลุ่มขายบริการ</label><br>
+                <input type="checkbox" id="riskSexual2" name="Risk_Sexual" value="ใช้สื่อหรือเสพภาพโป้เปลือย">
+                <label for="riskSexual2">ใช้สื่อหรือเสพภาพโป้เปลือย</label><br>
+                <input type="checkbox" id="riskSexual3" name="Risk_Sexual" value="ตั้งครรภ์ก่อนวัย">
+                <label for="riskSexual3">ตั้งครรษ์ก่อนวัย</label><br>
+                <input type="checkbox" id="riskSexual4" name="Risk_Sexual" value="มีการมั่วสุ่มทางเพศ">
+                <label for="riskSexual4">มีการมั่วสุ่มทางเพศ</label><br>
+                <input type="checkbox" id="riskSexual5" name="Risk_Sexual" value="ไม่มีความเสี่ยง">
+                <label for="riskSexual5">ไม่มีความเสี่ยง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านการติดเกม</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskGame1" name="Risk_GameAddiction" value="เล่นเกมเกินวันละ 6 ชั่วโมง">
+                <label for="riskGame1">เล่นเกมเกินวันละ 6 ชั่วโมง</label><br>
+                <input type="checkbox" id="riskGame2" name="Risk_GameAddiction" value="เก็บตัว แยกตัวจากกลุ่มเพื่อน">
+                <label for="riskGame2">เก็บตัว แยกตัวจากกลุ่มเพื่อน</label><br>
+                <input type="checkbox" id="riskGame3" name="Risk_GameAddiction" value="ใช้จ่ายเงินเยอะ ลักขโมยเพื่อซื้อเกม">
+                <label for="riskGame3">ใช้จ่ายเงินเยอะ ลักขโมยเพื่อซื้อเกม</label><br>
+                <input type="checkbox" id="riskGame4" name="Risk_GameAddiction" value="อยู่ในกลุ่มเพื่อนเล่นเกม">
+                <label for="riskGame4">อยู่ในกลุ่มเพื่อนเล่นเกม</label><br>
+                <input type="checkbox" id="riskGame5" name="Risk_GameAddiction" value="หมกมุ่น จริงจัง ไม่ทำอะไรนอกจากเล่นเกม">
+                <label for="riskGame5">หมกมุ่น จริงจัง ไม่ทำอะไรนอกจากเล่นเกม</label><br>
+                <input type="checkbox" id="riskGame6" name="Risk_GameAddiction" value="ไม่มีความเสี่ยง">
+                <label for="riskGame6">ไม่มีความเสี่ยง</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>ด้านสื่อออนไลน์</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="riskOnline1" name="Risk_OnlineMedia" value="ใช้อินเทอร์เน็ตบ้าน">
+                <label for="riskOnline1">ใช้อินเทอร์เน็ตบ้าน</label><br>
+                <input type="checkbox" id="riskOnline2" name="Risk_OnlineMedia" value="ใช้อินเทอร์เน็ตชุมชน">
+                <label for="riskOnline2">ใช้อินเทอร์เน็ตชุมชน</label><br>
+                <input type="checkbox" id="riskOnline3" name="Risk_OnlineMedia" value="ใช้อินเทอร์เน็ตจากโทรศัพท์">
+                <label for="riskOnline3">ใช้อินเทอร์เน็ตจากโทรศัพท์</label><br>
+                <input type="checkbox" id="riskOnline4" name="Risk_OnlineMedia" value="ไม่มีอินเทอร์เน็ตใช้">
+                <label for="riskOnline4">ไม่มีอินเทอร์เน็ตใช้</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>กิจกรรมยามว่าง</label>
+              <div class="checkbox-group">
+                <input type="checkbox" id="leisure1" name="LeisureActivities" value="ดูทีวี/ฟังเพลง">
+                <label for="leisure1">ดูทีวี/ฟังเพลง</label><br>
+                <input type="checkbox" id="leisure2" name="LeisureActivities" value="ไปหาเพื่อน">
+                <label for="leisure2">ไปหาเพื่อน</label><br>
+                <input type="checkbox" id="leisure3" name="LeisureActivities" value="อ่านหนังสือ">
+                <label for="leisure3">อ่านหนังสือ</label><br>
+                <input type="checkbox" id="leisure4" name="LeisureActivities" value="แว้น/สก้อย">
+                <label for="leisure4">แว้น/สก้อย</label><br>
+                <input type="checkbox" id="leisure5" name="LeisureActivities" value="เล่นเกมคอมฯ/มือถือ">
+                <label for="leisure5">เล่นเกมคอมฯ/มือถือ</label><br>
+                <input type="checkbox" id="leisure6" name="LeisureActivities" value="นอนพักผ่อน">
+                <label for="leisure6">นอนพักผ่อน</label><br>
+                <input type="checkbox" id="leisure7" name="LeisureActivities" value="ช่วยพ่อแม่ทำงานบ้าน">
+                <label for="leisure7">ช่วยพ่อแม่ทำงานบ้าน</label><br>
+                <input type="checkbox" id="leisure8" name="LeisureActivities" value="เล่นดนตรี">
+                <label for="leisure8">เล่นดนตรี</label><br>
+                <input type="checkbox" id="leisure9" name="LeisureActivities" value="ไปเที่ยวเตร่ไม่อยู่บ้าน">
+                <label for="leisure9">ไปเที่ยวเตร่ไม่อยู่บ้าน</label>
+              </div>
+            </div>
+            <button type="button" class="prev-tab" data-prev-tab="tab1">ย้อนกลับ</button>
+            <button type="button" class="next-tab" data-next-tab="tab3">ถัดไป</button>
+          </div>
+
+          <div id="tab3" class="tab-content">
+            <h3>ส่วนที่ 8 ข้อมูลที่ตั้ง ที่อยู่ปัจจุบัน</h3>
+            <div class="form-group">
+              <label for="latitude">ละติจูด</label>
+              <input type="text" id="latitude" name="Latitude" readonly required>
+            </div>
+            <div class="form-group">
+              <label for="longitude">ลองติจูด</label>
+              <input type="text" id="longitude" name="Longitude" readonly required>
+            </div>
+            <button type="button" id="getCurrentLocation" class="btn-location"><i class="fas fa-crosshairs"></i> ดึงตำแหน่งปัจจุบัน</button>
+            <div id="map" style="height: 400px; width: 100%; margin-top: 20px; border-radius: 8px;"></div>
+            <input type="hidden" id="mapSearchInput">
+            <button type="button" class="prev-tab" data-prev-tab="tab2">ย้อนกลับ</button>
+            <button type="button" class="next-tab" data-next-tab="tab4">ถัดไป</button>
+          </div>
+
+          <div id="tab4" class="tab-content">
+            <h3>ส่วนที่ 9 ภาพถ่ายนักเรียนและบ้านนักเรียน</h3>
+            <div class="form-group photo-upload-group">
+              <label for="studentPhoto">รูปนักเรียนหน้าตรง</label>
+              <input type="file" id="studentPhoto" accept=".jpg,.jpeg,.png" data-name="StudentPhotoURL" required>
+              <div class="image-preview" id="studentPhotoPreview"></div>
+            </div>
+            <div class="form-group photo-upload-group">
+              <label for="outsideHousePhoto">ภายนอกบ้าน (มีหลังคาและฝาบ้าน)</label>
+              <input type="file" id="outsideHousePhoto" accept=".jpg,.jpeg,.png" data-name="OutsideHousePhotoURL" required>
+              <div class="image-preview" id="outsideHousePhotoPreview"></div>
+            </div>
+            <div class="form-group photo-upload-group">
+              <label for="insideHousePhoto">ภายในบ้าน (มุมใดมุมหนึ่ง)</label>
+              <input type="file" id="insideHousePhoto" accept=".jpg,.jpeg,.png" data-name="InsideHousePhotoURL" required>
+              <div class="image-preview" id="insideHousePhotoPreview"></div>
+            </div>
+            <button type="button" class="prev-tab" data-prev-tab="tab3">ย้อนกลับ</button>
+            <button type="button" class="next-tab" data-next-tab="tab5">ถัดไป</button>
+          </div>
+
+          <div id="tab5" class="tab-content">
+            <h3>สรุปข้อมูลโดยครูที่ปรึกษา</h3>
+            <div class="form-group">
+              <label for="teacherSummaryFamilyCondition">สภาพครอบครัว</label>
+              <select id="teacherSummaryFamilyCondition" name="TeacherSummary_FamilyCondition" required>
+                <option value="">เลือก</option>
+                <option value="อบอุ่น">อบอุ่น</option>
+                <option value="แตกแยก">แตกแยก</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่บิดาและมารดาเสียชีวิตหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="parentsDeceasedYes" name="TeacherSummary_ParentsDeceased" value="ใช่" required>
+                <label for="parentsDeceasedYes">ใช่</label>
+                <input type="radio" id="parentsDeceasedNo" name="TeacherSummary_ParentsDeceased" value="ไม่ใช่">
+                <label for="parentsDeceasedNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่บิดาหรือมารดาเสียชีวิตหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="parentDeceasedYes" name="TeacherSummary_ParentDeceased" value="ใช่" required>
+                <label for="parentDeceasedYes">ใช่</label>
+                <input type="radio" id="parentDeceasedNo" name="TeacherSummary_ParentDeceased" value="ไม่ใช่">
+                <label for="parentDeceasedNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่บิดาและมารดาเลิกร้างกันหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="parentsDivorcedYes" name="TeacherSummary_ParentsDivorced" value="ใช่" required>
+                <label for="parentsDivorcedYes">ใช่</label>
+                <input type="radio" id="parentsDivorcedNo" name="TeacherSummary_ParentsDivorced" value="ไม่ใช่">
+                <label for="parentsDivorcedNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มิได้อาศัยอยู่กับบิดาหรือมารดาของตนเองหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="notWithParentsYes" name="TeacherSummary_NotWithParents" value="ใช่" required>
+                <label for="notWithParentsYes">ใช่</label>
+                <input type="radio" id="notWithParentsNo" name="TeacherSummary_NotWithParents" value="ไม่ใช่">
+                <label for="notWithParentsNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านการเรียนหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="academicIssueYes" name="TeacherSummary_AcademicIssue" value="ใช่" required>
+                <label for="academicIssueYes">ใช่</label>
+                <input type="radio" id="academicIssueNo" name="TeacherSummary_AcademicIssue" value="ไม่ใช่">
+                <label for="academicIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านสุขภาพหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="healthIssueYes" name="TeacherSummary_HealthIssue" value="ใช่" required>
+                <label for="healthIssueYes">ใช่</label>
+                <input type="radio" id="healthIssueNo" name="TeacherSummary_HealthIssue" value="ไม่ใช่">
+                <label for="healthIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านการใช้สารเสพติดหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="substanceAbuseIssueYes" name="TeacherSummary_SubstanceAbuseIssue" value="ใช่" required>
+                <label for="substanceAbuseIssueYes">ใช่</label>
+                <input type="radio" id="substanceAbuseIssueNo" name="TeacherSummary_SubstanceAbuseIssue" value="ไม่ใช่">
+                <label for="substanceAbuseIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านความรุนแรงหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="violenceIssueYes" name="TeacherSummary_ViolenceIssue" value="ใช่" required>
+                <label for="violenceIssueYes">ใช่</label>
+                <input type="radio" id="violenceIssueNo" name="TeacherSummary_ViolenceIssue" value="ไม่ใช่">
+                <label for="violenceIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านการเดินทางมาโรงเรียนหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="travelIssueYes" name="TeacherSummary_TravelIssue" value="ใช่" required>
+                <label for="travelIssueYes">ใช่</label>
+                <input type="radio" id="travelIssueNo" name="TeacherSummary_TravelIssue" value="ไม่ใช่">
+                <label for="travelIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านเพศหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="sexualIssueYes" name="TeacherSummary_SexualIssue" value="ใช่" required>
+                <label for="sexualIssueYes">ใช่</label>
+                <input type="radio" id="sexualIssueNo" name="TeacherSummary_SexualIssue" value="ไม่ใช่">
+                <label for="sexualIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านติดเกมหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="gameAddictionIssueYes" name="TeacherSummary_GameAddictionIssue" value="ใช่" required>
+                <label for="gameAddictionIssueYes">ใช่</label>
+                <input type="radio" id="gameAddictionIssueNo" name="TeacherSummary_GameAddictionIssue" value="ไม่ใช่">
+                <label for="gameAddictionIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านเศรษฐกิจหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="economicIssueYes" name="TeacherSummary_EconomicIssue" value="ใช่" required>
+                <label for="economicIssueYes">ใช่</label>
+                <input type="radio" id="economicIssueNo" name="TeacherSummary_EconomicIssue" value="ไม่ใช่">
+                <label for="economicIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่มีปัญหาด้านอื่นๆหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="otherIssueYes" name="TeacherSummary_OtherIssue" value="ใช่" required>
+                <label for="otherIssueYes">ใช่</label>
+                <input type="radio" id="otherIssueNo" name="TeacherSummary_OtherIssue" value="ไม่ใช่">
+                <label for="otherIssueNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group" id="otherIssueDetailsGroup" style="display: none;">
+              <label for="otherIssueDetails">โปรดระบุปัญหา</label>
+              <textarea id="otherIssueDetails" name="TeacherSummary_OtherIssueDetails"></textarea>
+            </div>
+            <div class="form-group">
+              <label>เป็นนักเรียนที่ต้องได้รับการช่วยเหลือเร่งด่วนหรือไม่</label>
+              <div class="radio-group">
+                <input type="radio" id="urgentHelpNeededYes" name="TeacherSummary_UrgentHelpNeeded" value="ใช่" required>
+                <label for="urgentHelpNeededYes">ใช่</label>
+                <input type="radio" id="urgentHelpNeededNo" name="TeacherSummary_UrgentHelpNeeded" value="ไม่ใช่">
+                <label for="urgentHelpNeededNo">ไม่ใช่</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="teacherSignature">ลงชื่อครูที่ปรึกษา</label>
+              <input type="text" id="teacherSignature" name="TeacherSignature" required>
+            </div>
+            <button type="button" class="prev-tab" data-prev-tab="tab4">ย้อนกลับ</button>
+            <button type="submit" class="submit-button"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="manage-section" class="section">
+        <h2><i class="fas fa-tasks"></i> จัดการข้อมูลนักเรียน</h2>
+        <hr>
+        <div class="search-bar">
+          <input type="text" id="studentSearchName" placeholder="ค้นหาด้วยชื่อนักเรียน">
+          <select id="studentSearchClass">
+            <option value="">ค้นหาด้วยชั้น (ทั้งหมด)</option>
+            <option value="ประถมศึกษาปีที่ 1/1">ประถมศึกษาปีที่ 1/1</option>
+            <option value="ประถมศึกษาปีที่ 1/2">ประถมศึกษาปีที่ 1/2</option>
+            <option value="ประถมศึกษาปีที่ 2/1">ประถมศึกษาปีที่ 2/1</option>
+            <option value="ประถมศึกษาปีที่ 2/2">ประถมศึกษาปีที่ 2/2</option>
+            <option value="ประถมศึกษาปีที่ 3/1">ประถมศึกษาปีที่ 3/1</option>
+            <option value="ประถมศึกษาปีที่ 3/2">ประถมศึกษาปีที่ 3/2</option>
+            <option value="ประถมศึกษาปีที่ 4/1">ประถมศึกษาปีที่ 4/1</option>
+            <option value="ประถมศึกษาปีที่ 4/2">ประถมศึกษาปีที่ 4/2</option>
+            <option value="ประถมศึกษาปีที่ 5/1">ประถมศึกษาปีที่ 5/1</option>
+            <option value="ประถมศึกษาปีที่ 5/2">ประถมศึกษาปีที่ 5/2</option>
+            <option value="ประถมศึกษาปีที่ 6/1">ประถมศึกษาปีที่ 6/1</option>
+            <option value="ประถมศึกษาปีที่ 6/2">ประถมศึกษาปีที่ 6/2</option>
+            <option value="มัธยมศึกษาปีที่ 1/1">มัธยมศึกษาปีที่ 1/1</option>
+            <option value="มัธยมศึกษาปีที่ 1/2">มัธยมศึกษาปีที่ 1/2</option>
+            <option value="มัธยมศึกษาปีที่ 2/1">มัธยมศึกษาปีที่ 2/1</option>
+            <option value="มัธยมศึกษาปีที่ 2/2">มัธยมศึกษาปีที่ 2/2</option>
+            <option value="มัธยมศึกษาปีที่ 3/1">มัธยมศึกษาปีที่ 3/1</option>
+            <option value="มัธยมศึกษาปีที่ 3/2">มัธยมศึกษาปีที่ 3/2</option>
+          </select>
+          <button type="button" id="searchStudentBtn"><i class="fas fa-search"></i> ค้นหา</button>
+        </div>
+        <div class="table-responsive">
+          <table id="studentDataTable">
+            <thead>
+              <tr>
+                <th>ชื่อ-นามสกุล</th>
+                <th>ชั้น</th>
+                <th>สถานะเยี่ยมบ้าน</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 ระบบบันทึกการเยี่ยมบ้านนักเรียน | คุณครูจดุรงค์ จิโน ผู้พัฒนาระบบ</p>
+    <p>E-mail : ictmkw@gmail.com โทรศัพท์ 063 893 5654</p>
+  </footer>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDqJfZ2_qoQJgsDniUFyBku3II0KBPQMW8&libraries=places&callback=initMap"></script>
+  <?!= include('JavaScript'); ?>
+</body>
+</html>
